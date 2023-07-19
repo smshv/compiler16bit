@@ -6,9 +6,7 @@ import java.util.Scanner;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
-public class parser {
-    static short C_ARITHMATIC = 0,  C_PUSH = 1, C_POP = 2, C_LABEL = 3,
-            C_GOTO = 4, C_IF = 5, C_FUNCTION = 6, C_RETURN = 7, C_CALL = 8, C_INVALID = 9;
+public class Parser extends C_TYPES{
     static Pattern commandPattern = Pattern.compile("^\\s*\\w+\\s+");
     static Pattern arg1Pattern = Pattern.compile("\\s+\\w+\\s+");
     static Pattern arg2Pattern = Pattern.compile("\\s+\\d+\\s+$");
@@ -28,7 +26,7 @@ public class parser {
 
     private final Scanner vmFile;
     private String currentCommand;
-    public parser(String filePath){
+    public Parser(String filePath){
         this.vmFile = new Scanner(filePath);
     }
     public boolean hasNextCommand(){
