@@ -56,4 +56,8 @@ public class Parser extends C_TYPES{
     public int arg2(){
         return Integer.valueOf(getMatchedString(arg2Pattern));
     }
+
+    public void close(){
+        this.vmFile.close();
+    }
 }
