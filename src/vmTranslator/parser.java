@@ -1,15 +1,15 @@
 package vmTranslator;
 
-import java.util.HashMap;
+import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
 public class Parser extends C_TYPES{
-    static Pattern commandPattern = Pattern.compile("^\\s*\\w+\\s+");
-    static Pattern arg1Pattern = Pattern.compile("\\s+\\w+\\s+");
-    static Pattern arg2Pattern = Pattern.compile("\\s+\\d+\\s+$");
+    static String ignorePattern ="^\s*//.*|^\s*";
+    static Pattern cmdPattern = Pattern.compile("[a-z]+|[0-9]+");
     static Map<String, Short> commandMap = Map.ofEntries(
             Map.entry("add", C_ARITHMATIC),
             Map.entry("sub", C_ARITHMATIC),
@@ -26,35 +26,46 @@ public class Parser extends C_TYPES{
 
     private final Scanner vmFile;
     private String currentCommand;
-    public Parser(String filePath){
-        this.vmFile = new Scanner(filePath);
+    public int currentLineNum;
+    private Matcher matcher;
+    public Parser(String filePath) throws IOException {
+        this.vmFile = new Scanner(Paths.get(filePath));
+        this.currentLineNum = 0;
     }
     public boolean hasNextCommand(){
         return this.vmFile.hasNextLine();
     }
     public void advance(){
         this.currentCommand = this.vmFile.nextLine();
-    }
-
-    private  String getMatchedString(Pattern pattern){
-        Matcher matcher = pattern.matcher(this.currentCommand);
-        return this.currentCommand.substring(matcher.start(), matcher.end());
+        this.currentLineNum += 1;
     }
 
     public short commandType(){
-        String possibleCommand = getMatchedString(commandPattern);
-        if ( commandMap.containsKey( possibleCommand ) ) {
-            return commandMap.get(possibleCommand);
-        }else{
-            return C_INVALID;
+        if ( !this.currentCommand.matches(ignorePattern) ) {
+            this.matcher = cmdPattern.matcher(this.currentCommand);
+            matcher.find();
+            String matchedString = matcher.group();
+            String possibleCommand = matchedString;
+            if (commandMap.containsKey(possibleCommand)) {
+                return commandMap.get(possibleCommand);
+            } else {
+                return C_INVALID;
+            }
         }
+        return C_EMPTY;
     }
 
     public String arg1(){
-        return getMatchedString(arg1Pattern);
+        String arg= this.matcher.group();
+        if ( this.matcher.find() ){
+            arg = this.matcher.group();
+        }
+        return arg;
     }
     public int arg2(){
-        return Integer.valueOf(getMatchedString(arg2Pattern));
+        this.matcher.find();
+        String arg = matcher.group();
+        return Integer.valueOf(arg);
     }
 
     public void close(){
