@@ -8,18 +8,18 @@ import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
 public class Parser extends C_TYPES{
-    static String ignorePattern ="^\s*//.*|^\s*";
+    static String ignorePattern ="^\\s*//.*|^\\s*";
     static Pattern cmdPattern = Pattern.compile("[a-z]+|[0-9]+");
     static Map<String, Short> commandMap = Map.ofEntries(
-            Map.entry("add", C_ARITHMATIC),
-            Map.entry("sub", C_ARITHMATIC),
-            Map.entry("neg", C_ARITHMATIC),
-            Map.entry("eq", C_ARITHMATIC),
-            Map.entry("gt", C_ARITHMATIC),
-            Map.entry("lt", C_ARITHMATIC),
-            Map.entry("and", C_ARITHMATIC),
-            Map.entry("or", C_ARITHMATIC),
-            Map.entry("not", C_ARITHMATIC),
+            Map.entry("add", C_ARITHMETIC),
+            Map.entry("sub", C_ARITHMETIC),
+            Map.entry("neg", C_ARITHMETIC),
+            Map.entry("eq", C_ARITHMETIC),
+            Map.entry("gt", C_ARITHMETIC),
+            Map.entry("lt", C_ARITHMETIC),
+            Map.entry("and", C_ARITHMETIC),
+            Map.entry("or", C_ARITHMETIC),
+            Map.entry("not", C_ARITHMETIC),
             Map.entry("push", C_PUSH),
             Map.entry("pop", C_POP)
     );
@@ -43,12 +43,9 @@ public class Parser extends C_TYPES{
     public short commandType(){
         if ( !this.currentCommand.matches(ignorePattern) ) {
             this.matcher = cmdPattern.matcher(this.currentCommand);
-            matcher.find();
-            String matchedString = matcher.group();
-            String possibleCommand = matchedString;
-            if (commandMap.containsKey(possibleCommand)) {
-                return commandMap.get(possibleCommand);
-            } else {
+            if ( matcher.find() ){
+                return commandMap.getOrDefault(matcher.group(), C_INVALID);
+            }else{
                 return C_INVALID;
             }
         }
@@ -65,7 +62,7 @@ public class Parser extends C_TYPES{
     public int arg2(){
         this.matcher.find();
         String arg = matcher.group();
-        return Integer.valueOf(arg);
+        return Integer.parseInt(arg);
     }
 
     public void close(){
