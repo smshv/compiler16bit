@@ -2,7 +2,7 @@ package vmTranslator;
 
 import java.io.IOException;
 
-public class vmTranslator extends C_TYPES{
+public class VMTranslator extends C_TYPES{
     public static void main(String[] args) throws IOException {
         String filename = args[0];
         Parser parser = new Parser(filename);
