@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="compiler16bit:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/compiler16bit_jar</output-path>
+    <root id="archive" name="compiler16bit.jar">
+      <element id="module-output" name="compiler16bit" />
+    </root>
+  </artifact>
+</component>

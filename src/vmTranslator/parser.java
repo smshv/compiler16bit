@@ -8,8 +8,8 @@ import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
 public class Parser extends C_TYPES{
-    static String ignorePattern ="^\\s*//.*|^\\s*";
-    static Pattern cmdPattern = Pattern.compile("[a-z]+|[0-9]+");
+    static Pattern ignorePattern = Pattern.compile("//.*"); //^\s*//.*|^\s*)
+    static Pattern cmdPattern = Pattern.compile("\\S+"); //[a-z-]+|[0-9]+
     static Map<String, Short> commandMap = Map.ofEntries(
             Map.entry("add", C_ARITHMETIC),
             Map.entry("sub", C_ARITHMETIC),
@@ -21,7 +21,13 @@ public class Parser extends C_TYPES{
             Map.entry("or", C_ARITHMETIC),
             Map.entry("not", C_ARITHMETIC),
             Map.entry("push", C_PUSH),
-            Map.entry("pop", C_POP)
+            Map.entry("pop", C_POP),
+            Map.entry("label", C_LABEL),
+            Map.entry("goto", C_GOTO),
+            Map.entry("if-goto", C_IF),
+            Map.entry("function", C_FUNCTION),
+            Map.entry("call", C_CALL),
+            Map.entry("return", C_RETURN)
     );
 
     private final Scanner vmFile;
@@ -37,30 +43,32 @@ public class Parser extends C_TYPES{
     }
     public void advance(){
         this.currentCommand = this.vmFile.nextLine();
+        matcher = ignorePattern.matcher(this.currentCommand);
+        this.currentCommand =  matcher.find() ? this.currentCommand.substring(0, matcher.start()) : this.currentCommand; //weedout the comments
         this.currentLineNum += 1;
     }
 
     public short commandType(){
-        if ( !this.currentCommand.matches(ignorePattern) ) {
-            this.matcher = cmdPattern.matcher(this.currentCommand);
+        if ( this.currentCommand.length() > 1 ) {
+            matcher = cmdPattern.matcher(this.currentCommand);
             if ( matcher.find() ){
                 return commandMap.getOrDefault(matcher.group(), C_INVALID);
             }else{
-                return C_INVALID;
+                return C_EMPTY;
             }
         }
         return C_EMPTY;
     }
 
     public String arg1(){
-        String arg= this.matcher.group();
-        if ( this.matcher.find() ){
-            arg = this.matcher.group();
+        String arg= matcher.group();
+        if ( matcher.find() ){
+            arg = matcher.group();
         }
         return arg;
     }
     public int arg2(){
-        this.matcher.find();
+        matcher.find();
         String arg = matcher.group();
         return Integer.parseInt(arg);
     }
